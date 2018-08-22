@@ -2,35 +2,40 @@
 
 import "./polyfills";
 
-import { discordClient } from "./discord";
+import { discordClient, DiscordHelpers } from "./discord";
 import { Commands } from "./commands";
 import { logger } from "./logger";
-import { store } from "./data-store";
-import { Playlist } from "./models/playlist";
 import * as _ from "lodash";
 import * as Discord from "discord.js";
+import * as moment from "moment";
+import { Auth } from "./models/auth";
+import { store } from "./data-store";
 import { ChannelPlaylistCollection } from "./models/channel-playlist-collection";
+import { Config } from "./models/config";
 import { SpotifyHelpers } from "./spotify";
+import { Playlist } from "./models/playlist";
 
-// Configuration values:
-const messageOnPlaylistChange: boolean = true;
-////
+const auth: Auth = require("../auth.json");
+const config: Config = require("../config.json");
 
-const SPOTIFY_URL_REGEX = /^https:\/\/open\.spotify\.com\/track\/([^\?\s]+)(\?[^\s]+)?$/i;
+export function main() {
+    // login
+    discordClient.login(auth.discord.token);
 
-discordClient.on("ready", () => {
-    logger.info(`Logged in as ${discordClient.user.tag}`);
-});
+    discordClient.on("ready", () => {
+        logger.info(`Logged in as ${discordClient.user.tag}`);
 
-discordClient.on("message", (message) => {
-    if (message.author.id !== discordClient.user.id) {
-        checkMessage(message);
-    }
-});
+        checkChannelListStatus();
+    });
+    
+    discordClient.on("message", (message) => {
+        if (message.author.id !== discordClient.user.id) {
+            checkMessage(message);
+        }
+    });
+}
 
-//
-
-function checkMessage(message: Discord.Message) {
+export function checkMessage(message: Discord.Message) {
     const isBotMention: boolean = message.mentions.users.some(user => user.tag === discordClient.user.tag);
 
     if (isBotMention) {
@@ -53,7 +58,7 @@ function checkMessage(message: Discord.Message) {
     else {
         if (message.channel instanceof Discord.TextChannel) {
             // Check for new tracks from users in the channel
-            checkForTracks(message);
+            DiscordHelpers.checkForTracks(message);
         } else if (message.channel instanceof Discord.DMChannel) {
             // If this is a DM, assume someone is registering a token
             Commands["register-token"](message, message.content);
@@ -61,35 +66,28 @@ function checkMessage(message: Discord.Message) {
     }
 }
 
-function checkForTracks(message: Discord.Message) {
-    const messageTokens = message.content.split(/\s+/);
+async function checkChannelListStatus(): Promise<void> {
+    const channelPlaylistCollection = store.get<ChannelPlaylistCollection>("channelPlaylistCollection") || {};
+    for (const key in channelPlaylistCollection){
+        const playlist: Playlist = channelPlaylistCollection[key];
+    
+        if (playlist.lastCommitDate && moment().isAfter(moment(playlist.lastCommitDate).add(config.playlistUpdateFrequency, "seconds"))) {
+            const channel = discordClient.channels.find(c => c.id === playlist.channelId) as Discord.TextChannel;
+            if (channel) {
+                channel.send("Spotify playlists for this channel are being updated. Get ready!");
+            }
 
-    // Check if there are any Spotify songs in this message
-    const spotifyUris = messageTokens.reduce<string[]>((uriList: string[], token: string) => {
-        const regexMatch = SPOTIFY_URL_REGEX.exec(token);
-
-        if (regexMatch && regexMatch.length > 1) {
-            uriList.push(regexMatch[1]);
-        }
-
-        return uriList;
-    }, []);
-
-    if (!_.isEmpty(spotifyUris)) {
-        let channelPlaylistCollection = store.get<ChannelPlaylistCollection>("channelPlaylistCollection") || {};
-        let channelPlaylist: Playlist = channelPlaylistCollection[message.channel.id] || Playlist.create(<Discord.TextChannel>message.channel);
-
-        // Add all Spotify URIs from the message to the playlist
-        channelPlaylist.songUris.push(...spotifyUris.map(uri => SpotifyHelpers.encodeUri(uri)));
-
-        message.channel.send(`Your playlist is now: ${channelPlaylist.songUris.join(", ")}.`);
-
-        // Update the collection
-        channelPlaylistCollection[message.channel.id] = channelPlaylist;
-        store.set<ChannelPlaylistCollection>("channelPlaylistCollection", channelPlaylistCollection);
-
-        if (messageOnPlaylistChange) {
-            message.channel.send("Your track(s) have been added to the playlist.");
+            await SpotifyHelpers.updateChannelPlaylist(playlist);
+            store.set<ChannelPlaylistCollection>("channelPlaylistCollection", channelPlaylistCollection);
         }
     }
+
+    // Check for updates every 1000ms
+    setTimeout(checkChannelListStatus, 1000);
+    return Promise.resolve();
 }
+
+////
+
+// Start the bot
+main();

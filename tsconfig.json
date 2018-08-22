@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "noUnusedLocals": true,
-		"noUnusedParameters": true,
+        "noUnusedParameters": true,
         "noImplicitReturns": true,
         "allowSyntheticDefaultImports": true,
         "declaration": true,

@@ -4,6 +4,7 @@ export interface Playlist {
     channelId: string;
     channelName: string;
     songUris: string[];
+    lastCommitDate: string;
 }
 
 export namespace Playlist {
@@ -11,7 +12,8 @@ export namespace Playlist {
         return {
             channelId: channel.id,
             channelName: `${channel.guild.name} #${channel.name}`,
-            songUris: []
+            songUris: [],
+            lastCommitDate: new Date().toISOString()
         };
     }
 }

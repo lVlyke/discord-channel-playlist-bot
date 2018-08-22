@@ -7,6 +7,7 @@ import { SpotifyUser } from "./models/spotify-user";
 import { Playlist } from "./models/playlist";
 import { UserAuth } from "./models/user-auth";
 import { Auth } from "./models/auth";
+import { Subscription } from "./models/subscription";
 
 const auth: Auth = require("../auth.json");
 
@@ -79,7 +80,23 @@ export namespace SpotifyHelpers {
         return Promise.resolve(response.body.id);
     }
 
-    export async function updateChannelPlaylist(userId: SpotifyUser.Id, playlist: Playlist): Promise<void> {
+    export async function updateChannelPlaylist(playlist: Playlist): Promise<void> {
+        const subscriptions = store.get<Subscription.Collection>("subscriptions");
+        const channelSubs = subscriptions[playlist.channelId];
+
+        for (const userId of channelSubs) {
+            try {
+                await SpotifyHelpers.updateChannelPlaylistForUser(userId, playlist);
+            } catch (e) {
+                console.error(e);
+                console.error("Failed to update one or more user playlists.");
+            }
+        }
+
+        return Promise.resolve();
+    }
+
+    export async function updateChannelPlaylistForUser(userId: SpotifyUser.Id, playlist: Playlist): Promise<void> {
         const userChannelPlaylists = store.get<UserChannelPlaylist.List>("userChannelPlaylists") || {};
 
         async function makeList(): Promise<string> {
@@ -133,6 +150,8 @@ export namespace SpotifyHelpers {
             console.error(e);
             return Promise.reject("updateChannelPlaylist - Failed to add playlist tracks from channel.");
         }
+
+        playlist.lastCommitDate = new Date().toISOString();
 
         return Promise.resolve();
     }

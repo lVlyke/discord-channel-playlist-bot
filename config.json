@@ -1,0 +1,5 @@
+{
+    "messageOnPlaylistChange": false,
+    "messageOnPlaylistCommit": true,
+    "playlistUpdateFrequency": 60
+}

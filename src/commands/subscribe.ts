@@ -1,4 +1,5 @@
 import * as Discord from "discord.js";
+import * as _ from "lodash";
 import { Command } from "../command";
 import { store } from "../data-store";
 import { Subscription } from "../models/subscription";
@@ -17,11 +18,11 @@ export const SubscribeCommand: Command = (message: Discord.Message, ..._args: st
 
     store.mutate<Subscription.Collection>("subscriptions", (collection) => {
         collection = collection || {};
-        console.log(collection);
+
         const channelId = message.channel.id;
         const idList: SpotifyUser.Id[] = collection[channelId] || [];
 
-        if (idList.some(id => id === spotifyUserId)) {
+        if (_.includes(idList, spotifyUserId)) {
             message.channel.send("You are already subscribed to this channel's playlist.");
 
             didSubscribe = false;
@@ -32,7 +33,6 @@ export const SubscribeCommand: Command = (message: Discord.Message, ..._args: st
         idList.push(spotifyUserId);
 
         collection[channelId] = idList;
-        console.log(collection);
         return collection;
     });
 
