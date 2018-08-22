@@ -44,7 +44,7 @@ export const RegisterTokenCommand: Command = async (message: Discord.Message, ..
         meResponse = await spotifyClient.getMe();
     } catch (e) {
         message.channel.send("I couldn't register your token. It appears to be invalid.");
-        message.channel.send("To recieve a valid token, please @Mention me and say 'authorize <Spotify User ID>'.");
+        message.channel.send("To recieve a valid token, please **@Mention** me and say `authorize <Spotify User ID>`.");
 
         console.error(e);
         return Promise.reject(e);
@@ -71,6 +71,6 @@ export const RegisterTokenCommand: Command = async (message: Discord.Message, ..
         return map;
     });
 
-    message.channel.send("You're all set! You can now @Mention me in any channel and tell me to 'subscribe' to have me manage a weekly playlist for that channel.");
+    message.channel.send("You're all set! You can now **@Mention** me in any channel and say `subscribe` to have me manage a weekly playlist for that channel.");
     return Promise.resolve();
 };

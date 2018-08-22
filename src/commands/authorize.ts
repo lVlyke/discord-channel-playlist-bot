@@ -5,6 +5,8 @@ import { SpotifyHelpers } from "../spotify";
 export const AuthorizeCommand: Command = (message: Discord.Message, ...args: string[]) => {
     if (args.length < 1) {
         message.channel.send("In order to authorize, you need to provide your Spotify User ID.");
+        message.channel.send("For help, **@Mention** me and say `help`.");
+        // TODO - Tell user how to get user ID
         return;
     }
 
