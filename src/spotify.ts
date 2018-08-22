@@ -8,8 +8,10 @@ import { Playlist } from "./models/playlist";
 import { UserAuth } from "./models/user-auth";
 import { Auth } from "./models/auth";
 import { Subscription } from "./models/subscription";
+import { Config } from "./models/config";
 
 const auth: Auth = require("../auth.json");
+const config: Config = require("../config.json");
 
 export const spotifyClient = new SpotifyWebApi({
     clientId: auth.spotify.clientId,
@@ -100,7 +102,7 @@ export namespace SpotifyHelpers {
         const userChannelPlaylists = store.get<UserChannelPlaylist.List>("userChannelPlaylists") || {};
 
         async function makeList(): Promise<string> {
-            const playlistId = userChannelPlaylists[userId] = await createUserPlaylist(userId, `${playlist.channelName} - Weekly Playlist`);
+            const playlistId = userChannelPlaylists[userId] = await createUserPlaylist(userId, `${playlist.channelName} - ${config.playlistName}`);
             store.set<UserChannelPlaylist.List>("userChannelPlaylists", userChannelPlaylists);
             return Promise.resolve(playlistId);
         }
@@ -150,8 +152,6 @@ export namespace SpotifyHelpers {
             console.error(e);
             return Promise.reject("updateChannelPlaylist - Failed to add playlist tracks from channel.");
         }
-
-        playlist.lastCommitDate = new Date().toISOString();
 
         return Promise.resolve();
     }

@@ -72,12 +72,23 @@ async function checkChannelListStatus(): Promise<void> {
         const playlist: Playlist = channelPlaylistCollection[key];
     
         if (playlist.lastCommitDate && moment().isAfter(moment(playlist.lastCommitDate).add(config.playlistUpdateFrequency, "seconds"))) {
-            const channel = discordClient.channels.find(c => c.id === playlist.channelId) as Discord.TextChannel;
-            if (channel) {
-                channel.send("Spotify playlists for this channel are being updated. Get ready!");
+
+            if (!_.isEmpty(playlist.songUris)) {
+                const channel = discordClient.channels.find(c => c.id === playlist.channelId) as Discord.TextChannel;
+                if (channel && config.messageOnPlaylistCommit) {
+                    channel.send("Spotify playlists for this channel are being updated. Get ready!");
+                }
+
+                try {
+                    await SpotifyHelpers.updateChannelPlaylist(playlist);
+                } catch (e) {
+                    logger.error(e);
+                    continue;
+                }
             }
 
-            await SpotifyHelpers.updateChannelPlaylist(playlist);
+            playlist.lastCommitDate = new Date().toISOString();
+            playlist.songUris = [];
             store.set<ChannelPlaylistCollection>("channelPlaylistCollection", channelPlaylistCollection);
         }
     }
