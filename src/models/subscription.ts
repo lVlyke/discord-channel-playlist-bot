@@ -1,7 +1,7 @@
-import { SpotifyUserId } from "./spotify-user";
+import { SpotifyUser } from "./spotify-user";
 
 export namespace Subscription {
     export interface Collection {
-        [channelId: string]: SpotifyUserId[];
+        [channelId: string]: SpotifyUser.Id[];
     }
 }

@@ -10,7 +10,7 @@ export namespace Playlist {
     export function create(channel: Discord.TextChannel): Playlist {
         return {
             channelId: channel.id,
-            channelName: channel.name,
+            channelName: `${channel.guild.name} #${channel.name}`,
             songUris: []
         };
     }

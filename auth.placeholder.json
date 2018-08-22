@@ -1,0 +1,10 @@
+{
+    "discord": {
+        "token": "<discord token>"
+    },
+    "spotify": {
+        "clientId": "<spotify app client id>",
+        "clientSecret": "<spotify app client secret>",
+        "redirectUri": "<spotify app redirect uri>"
+    }
+}

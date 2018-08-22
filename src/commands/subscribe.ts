@@ -2,18 +2,14 @@ import * as Discord from "discord.js";
 import { Command } from "../command";
 import { store } from "../data-store";
 import { Subscription } from "../models/subscription";
-import { SpotifyUserId } from "../models/spotify-user";
+import { SpotifyUser } from "../models/spotify-user";
 
-export const SubscribeCommand: Command = (message: Discord.Message, ...args: string[]) => {
-    if (args.length < 1) {
-        message.channel.send("In order to subscribe to a playlist for this channel, you need to provide your Spotify user ID.");
-        return;
-    }
-
-    const [spotifyUserId] = [...args];
+export const SubscribeCommand: Command = (message: Discord.Message, ..._args: string[]) => {
+    const spotifyUserId = (store.get<SpotifyUser.LookupMap>("spotifyUserLookupMap") || {})[message.author.id];
 
     if (!spotifyUserId) {
-        message.channel.send("Invalid Spotify user ID.");
+        message.channel.send("You need to authorize me to manage your channel playlists before you can subscribe.");
+        message.channel.send("To authorize, please @Mention me and say 'authorize <Spotify User ID>' with your Spotify ID.");
         return;
     }
 
@@ -23,7 +19,7 @@ export const SubscribeCommand: Command = (message: Discord.Message, ...args: str
         collection = collection || {};
         console.log(collection);
         const channelId = message.channel.id;
-        const idList: SpotifyUserId[] = collection[channelId] || [];
+        const idList: SpotifyUser.Id[] = collection[channelId] || [];
 
         if (idList.some(id => id === spotifyUserId)) {
             message.channel.send("You are already subscribed to this channel's playlist.");

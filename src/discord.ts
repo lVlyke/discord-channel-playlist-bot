@@ -1,6 +1,7 @@
 import * as Discord from "discord.js";
+import { Auth } from "./models/auth";
 
-const auth: any = require("../auth.json");
+const auth: Auth = require("../auth.json");
 
 export const discordClient: Discord.Client = new Discord.Client();
 
