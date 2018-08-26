@@ -9,6 +9,7 @@ import { UserAuth } from "./models/user-auth";
 import { Auth } from "./models/auth";
 import { Subscription } from "./models/subscription";
 import { Config } from "./models/config";
+import { DataStore } from "./constants";
 
 const auth: Auth = require("../auth.json");
 const config: Config = require("../config.json");
@@ -43,14 +44,14 @@ export namespace SpotifyHelpers {
             return Promise.reject(e);
         }
         
-        auth.accessToken = data.body["access_token"];
-        auth.refreshToken = data.body["refresh_token"];
-        auth.expirationDate = moment().add(data.body["expires_in"], "seconds").toISOString();
+        auth.accessToken = data.body.access_token;
+        auth.refreshToken = data.body.refresh_token;
+        auth.expirationDate = moment().add(data.body.expires_in, "seconds").toISOString();
         return Promise.resolve();
     }
 
     export async function authenticateAsUser(userId: SpotifyUser.Id): Promise<void> {
-        const authCollection = store.get<UserAuth.Collection>("userAuthCollection");
+        const authCollection = store.get<UserAuth.Collection>(DataStore.Keys.userAuthCollection);
         const record: UserAuth = authCollection[userId];
 
         if (!record) {
@@ -83,7 +84,7 @@ export namespace SpotifyHelpers {
     }
 
     export async function updateChannelPlaylist(playlist: Playlist): Promise<void> {
-        const subscriptions = store.get<Subscription.Collection>("subscriptions");
+        const subscriptions = store.get<Subscription.Collection>(DataStore.Keys.subscriptions);
         const channelSubs = subscriptions[playlist.channelId];
 
         for (const userId of channelSubs) {
@@ -99,11 +100,11 @@ export namespace SpotifyHelpers {
     }
 
     export async function updateChannelPlaylistForUser(userId: SpotifyUser.Id, playlist: Playlist): Promise<void> {
-        const userChannelPlaylists = store.get<UserChannelPlaylist.List>("userChannelPlaylists") || {};
+        const userChannelPlaylists = store.get<UserChannelPlaylist.List>(DataStore.Keys.userChannelPlaylists) || {};
 
         async function makeList(): Promise<string> {
             const playlistId = userChannelPlaylists[userId] = await createUserPlaylist(userId, `${playlist.channelName} - ${config.playlistName}`);
-            store.set<UserChannelPlaylist.List>("userChannelPlaylists", userChannelPlaylists);
+            store.set<UserChannelPlaylist.List>(DataStore.Keys.userChannelPlaylists, userChannelPlaylists);
             return Promise.resolve(playlistId);
         }
 

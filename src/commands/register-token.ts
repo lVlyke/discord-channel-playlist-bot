@@ -5,6 +5,7 @@ import { spotifyClient } from "../spotify";
 import { store } from "../data-store";
 import { UserAuth } from "../models/user-auth";
 import { SpotifyUser } from "../models/spotify-user";
+import { DataStore } from "../constants";
 
 export const RegisterTokenCommand: Command = async (message: Discord.Message, ...args: string[]) => {
     if (args.length < 1) {
@@ -31,9 +32,9 @@ export const RegisterTokenCommand: Command = async (message: Discord.Message, ..
         return Promise.reject(e);
     }
     
-    const accessToken: string = data.body["access_token"];
-    const refreshToken: string = data.body["refresh_token"];
-    const expirationDate: string = moment().add(data.body["expires_in"], "seconds").toISOString();
+    const accessToken: string = data.body.access_token;
+    const refreshToken: string = data.body.refresh_token;
+    const expirationDate: string = moment().add(data.body.expires_in, "seconds").toISOString();
 
     // Set the access token on the API object to use it in later calls
     spotifyClient.setAccessToken(accessToken);
@@ -53,7 +54,7 @@ export const RegisterTokenCommand: Command = async (message: Discord.Message, ..
     const spotifyUserId: SpotifyUser.Id = meResponse.body.id;
 
     // Store the token for the user
-    store.mutate<UserAuth.Collection>("userAuthCollection", collection => {
+    store.mutate<UserAuth.Collection>(DataStore.Keys.userAuthCollection, collection => {
         collection = collection || {};
         collection[spotifyUserId] = {
             accessToken,
@@ -65,7 +66,7 @@ export const RegisterTokenCommand: Command = async (message: Discord.Message, ..
     });
 
     // Update the Spotify user lookup table
-    store.mutate<SpotifyUser.LookupMap>("spotifyUserLookupMap", map => {
+    store.mutate<SpotifyUser.LookupMap>(DataStore.Keys.spotifyUserLookupMap, map => {
         map = map || {};
         map[message.author.id] = spotifyUserId;
         return map;

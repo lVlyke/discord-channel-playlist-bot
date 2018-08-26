@@ -4,9 +4,10 @@ import { Command } from "../command";
 import { store } from "../data-store";
 import { Subscription } from "../models/subscription";
 import { SpotifyUser } from "../models/spotify-user";
+import { DataStore } from "../constants";
 
 export const SubscribeCommand: Command = (message: Discord.Message, ..._args: string[]) => {
-    const spotifyUserId = (store.get<SpotifyUser.LookupMap>("spotifyUserLookupMap") || {})[message.author.id];
+    const spotifyUserId = (store.get<SpotifyUser.LookupMap>(DataStore.Keys.spotifyUserLookupMap) || {})[message.author.id];
 
     if (!spotifyUserId) {
         message.channel.send("You need to authorize me to manage your channel playlists before you can subscribe.");
@@ -16,7 +17,7 @@ export const SubscribeCommand: Command = (message: Discord.Message, ..._args: st
 
     let didSubscribe = true;
 
-    store.mutate<Subscription.Collection>("subscriptions", (collection) => {
+    store.mutate<Subscription.Collection>(DataStore.Keys.subscriptions, (collection) => {
         collection = collection || {};
 
         const channelId = message.channel.id;

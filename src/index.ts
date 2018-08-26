@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-import "./polyfills";
-
 import { discordClient, DiscordHelpers } from "./discord";
 import { Commands } from "./commands";
 import { logger } from "./logger";
@@ -14,6 +12,7 @@ import { ChannelPlaylistCollection } from "./models/channel-playlist-collection"
 import { Config } from "./models/config";
 import { SpotifyHelpers } from "./spotify";
 import { Playlist } from "./models/playlist";
+import { DataStore } from "./constants";
 
 const auth: Auth = require("../auth.json");
 const config: Config = require("../config.json");
@@ -67,7 +66,7 @@ export function checkMessage(message: Discord.Message) {
 }
 
 async function checkChannelListStatus(): Promise<void> {
-    const channelPlaylistCollection = store.get<ChannelPlaylistCollection>("channelPlaylistCollection") || {};
+    const channelPlaylistCollection = store.get<ChannelPlaylistCollection>(DataStore.Keys.channelPlaylistCollection) || {};
     for (const key in channelPlaylistCollection){
         const playlist: Playlist = channelPlaylistCollection[key];
     
@@ -89,7 +88,7 @@ async function checkChannelListStatus(): Promise<void> {
 
             // Re-initialize the channel's playlist
             channelPlaylistCollection[key] = Playlist.create(channel);
-            store.set<ChannelPlaylistCollection>("channelPlaylistCollection", channelPlaylistCollection);
+            store.set<ChannelPlaylistCollection>(DataStore.Keys.channelPlaylistCollection, channelPlaylistCollection);
         }
     }
 
