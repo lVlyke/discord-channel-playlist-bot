@@ -13,6 +13,7 @@ import { Config } from "./models/config";
 import { SpotifyHelpers } from "./spotify";
 import { Playlist } from "./models/playlist";
 import { DataStore, Strings } from "./constants";
+import { DataUtils } from "./utils/data-utils";
 
 const auth: Auth = require("../auth.json");
 const config: Config = require("../config.json");
@@ -24,10 +25,12 @@ export function main() {
     discordClient.on("ready", () => {
         logger.info(`Logged in as ${discordClient.user.tag}`);
 
+        // Manage all channels' playlists
         checkChannelListStatus();
     });
     
     discordClient.on("message", (message) => {
+        // Analyze each user message that comes in
         if (message.author.id !== discordClient.user.id) {
             checkMessage(message);
         }
@@ -52,8 +55,11 @@ export function checkMessage(message: Discord.Message) {
     }
     else {
         if (message.channel instanceof Discord.TextChannel) {
-            // Check for new tracks from users in the channel
-            DiscordHelpers.checkForTracks(message);
+            // Only monitor channels that are subscribed to
+            if (DataUtils.isChannelSubscribedTo(message.channel.id)) {
+                // Check for new tracks from users in the channel
+                DiscordHelpers.checkForTracks(message);
+            }
         } else if (message.channel instanceof Discord.DMChannel) {
             // If this is a DM, assume someone is registering a token
             Commands["register-token"](message, message.content);
@@ -62,18 +68,24 @@ export function checkMessage(message: Discord.Message) {
 }
 
 async function checkChannelListStatus(): Promise<void> {
+    // Get all managed channel playlists
     const channelPlaylistCollection = store.get<ChannelPlaylistCollection>(DataStore.Keys.channelPlaylistCollection) || {};
-    for (const key in channelPlaylistCollection){
+
+    for (const key in channelPlaylistCollection) {
         const playlist: Playlist = channelPlaylistCollection[key];
     
+        // Check if enough time has elapsed to commit this channel's playlist to each subscribed user's Spotify account
         if (playlist.lastCommitDate && moment().isAfter(moment(playlist.lastCommitDate).add(config.playlistUpdateFrequency, "seconds"))) {
             const channel = discordClient.channels.find(c => c.id === playlist.channelId) as Discord.TextChannel;
 
             if (!_.isEmpty(playlist.songUris)) {
+
+                // Send notification (if enabled)
                 if (channel && config.messageOnPlaylistCommit) {
                     channel.send(Strings.Notifications.messageOnPlaylistCommit);
                 }
 
+                // Update the users playlists
                 try {
                     await SpotifyHelpers.updateChannelPlaylist(playlist);
                 } catch (e) {
@@ -82,7 +94,7 @@ async function checkChannelListStatus(): Promise<void> {
                 }
             }
 
-            // Re-initialize the channel's playlist
+            // Re-initialize the channel's playlist for the new period
             channelPlaylistCollection[key] = Playlist.create(channel);
             store.set<ChannelPlaylistCollection>(DataStore.Keys.channelPlaylistCollection, channelPlaylistCollection);
         }
