@@ -11,16 +11,14 @@ export const Strings = Constants.Strings.Commands.RegisterToken;
 
 export const RegisterTokenCommand: Command = async (message: Discord.Message, ...args: string[]) => {
     if (args.length < 1) {
-        message.channel.send(Strings.missingToken[1]);
-        message.channel.send(Strings.missingToken[2]);
+        message.channel.send(`${Strings.missingToken[1]}\r\n${Strings.missingToken[2]}`, { reply: message.author });
         return Promise.reject();
     }
 
     const [authCode] = [...args];
 
     if (!authCode) {
-        message.channel.send(Strings.invalidToken[1]);
-        message.channel.send(Strings.invalidToken[2]);
+        message.channel.send(`${Strings.invalidToken[1]}\r\n${Strings.invalidToken[2]}`, { reply: message.author });
         return Promise.reject();
     }
 
@@ -29,8 +27,7 @@ export const RegisterTokenCommand: Command = async (message: Discord.Message, ..
     try {
         data = await spotifyClient.authorizationCodeGrant(authCode);
     } catch (e) {
-        message.channel.send(Strings.invalidToken[1]);
-        message.channel.send(Strings.invalidToken[2]);
+        message.channel.send(`${Strings.invalidToken[1]}\r\n${Strings.invalidToken[2]}`, { reply: message.author });
 
         console.error(e);
         return Promise.reject(e);
@@ -48,8 +45,7 @@ export const RegisterTokenCommand: Command = async (message: Discord.Message, ..
     try {
         meResponse = await spotifyClient.getMe();
     } catch (e) {
-        message.channel.send(Strings.invalidToken[1]);
-        message.channel.send(Strings.invalidToken[2]);
+        message.channel.send(`${Strings.invalidToken[1]}\r\n${Strings.invalidToken[2]}`, { reply: message.author });
 
         console.error(e);
         return Promise.reject(e);
@@ -76,6 +72,6 @@ export const RegisterTokenCommand: Command = async (message: Discord.Message, ..
         return map;
     });
 
-    message.channel.send(Strings.successResponse);
+    message.channel.send(Strings.successResponse, { reply: message.author });
     return Promise.resolve();
 };

@@ -12,7 +12,7 @@ export const UnsubscribeCommand: Command = (message: Discord.Message, ..._args: 
     const spotifyUserId = (store.get<SpotifyUser.LookupMap>(DataStore.Keys.spotifyUserLookupMap) || {})[message.author.id];
 
     if (!spotifyUserId) {
-        message.channel.send(Strings.notSubscribed);
+        message.channel.send(Strings.notSubscribed, { reply: message.author });
         return;
     }
 
@@ -25,7 +25,7 @@ export const UnsubscribeCommand: Command = (message: Discord.Message, ..._args: 
         let idList: SpotifyUser.Id[] = collection[channelId] || [];
 
         if (!_.includes(idList, spotifyUserId)) {
-            message.channel.send(Strings.notSubscribed);
+            message.channel.send(Strings.notSubscribed, { reply: message.author });
 
             didUnsubscribe = false;
             return collection;
@@ -39,6 +39,6 @@ export const UnsubscribeCommand: Command = (message: Discord.Message, ..._args: 
     });
 
     if (didUnsubscribe) {
-        message.channel.send(Strings.successResponse);
+        message.channel.send(Strings.successResponse, { reply: message.author });
     }
 };

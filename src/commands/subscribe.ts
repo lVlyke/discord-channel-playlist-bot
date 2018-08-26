@@ -12,8 +12,7 @@ export const SubscribeCommand: Command = (message: Discord.Message, ..._args: st
     const spotifyUserId = (store.get<SpotifyUser.LookupMap>(DataStore.Keys.spotifyUserLookupMap) || {})[message.author.id];
 
     if (!spotifyUserId) {
-        message.channel.send(Strings.unregisteredUserId[1]);
-        message.channel.send(Strings.unregisteredUserId[2]);
+        message.channel.send(`${Strings.unregisteredUserId[1]}\r\n${Strings.unregisteredUserId[2]}`, { reply: message.author });
         return;
     }
 
@@ -26,7 +25,7 @@ export const SubscribeCommand: Command = (message: Discord.Message, ..._args: st
         const idList: SpotifyUser.Id[] = collection[channelId] || [];
 
         if (_.includes(idList, spotifyUserId)) {
-            message.channel.send(Strings.alreadySubscribed);
+            message.channel.send(Strings.alreadySubscribed, { reply: message.author });
 
             didSubscribe = false;
             return collection;
@@ -40,6 +39,6 @@ export const SubscribeCommand: Command = (message: Discord.Message, ..._args: st
     });
 
     if (didSubscribe) {
-        message.channel.send(Strings.successResponse);
+        message.channel.send(Strings.successResponse, { reply: message.author });
     }
 };

@@ -9,5 +9,6 @@ export const Strings = Constants.Strings.Commands.Help;
 export const HelpCommand: Command = (message: Discord.Message, ..._args: string[]) => {
     const commandList = _.reduce(Commands, (str, _command, name) => str + `\`${name}\`\r\n`, "");
 
-    message.channel.send(`${Strings.generalHelp[1]}\r\n\r\n${Strings.generalHelp[2]}\r\n\r\n${Strings.availableCommands}\r\n${commandList}`);
+    message.channel.send(`${Strings.generalHelp[1]}\r\n\r\n${Strings.generalHelp[2]}\r\n\r\n${Strings.availableCommands}\r\n${commandList}`,
+        { reply: message.author });
 };

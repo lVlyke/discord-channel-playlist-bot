@@ -7,5 +7,7 @@ import { Constants } from "../constants";
 export const Strings = Constants.Strings.Commands.Authorize;
 
 export const AuthorizeCommand: Command = (message: Discord.Message, ..._args: string[]) => {
-    message.channel.send(_.template(Strings.successResponse)({ authorizationUrl: SpotifyHelpers.createAuthorizationUrl() }));
+    message.channel.send(_.template(Strings.successResponse)(
+        { authorizationUrl: SpotifyHelpers.createAuthorizationUrl() }),
+        { reply: message.author });
 };
