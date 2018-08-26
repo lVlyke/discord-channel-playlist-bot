@@ -1,6 +1,6 @@
 {
   "name": "discord-channel-playlist-bot",
-  "description": "A bot that allows users to subscribe to Spotify playlists comprised of music posted to a specific Discord channel.",
+  "description": "A Discord bot that allows users to receive a weekly Spotify playlist made up of songs posted to a specific Discord channel over that time.",
   "version": "1.0.0",
   "main": "index.js",
   "author": "Mychal Thompson",
