@@ -15,16 +15,11 @@ export namespace Constants {
 
         export const Common = {
             helpInstructions: "For help, **@Mention** me and say `help`.",
-            authInstructions: "**@Mention** me and say `authorize <your Spotify User ID here>`"
+            authInstructions: "**@Mention** me and say `authorize`"
         };
 
         export const Commands = {
             Authorize: {
-                missingAuth: {
-                    1: "In order to authorize, you need to provide your Spotify User ID. This only needs to be done once.",
-                    2: Strings.Common.helpInstructions
-                },
-                invalidAuth: "Invalid Spotify User ID. Please confirm and try again.",
                 successResponse: "To authorize me to manage your channel playlists, follow this link: ${authorizationUrl}\r\nPlease note that you **must** send me the authorization token you receive via a direct message."
             },
             ForceUserPlaylistUpdate: {

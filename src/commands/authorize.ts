@@ -6,20 +6,6 @@ import { Constants } from "../constants";
 
 export const Strings = Constants.Strings.Commands.Authorize;
 
-export const AuthorizeCommand: Command = (message: Discord.Message, ...args: string[]) => {
-    if (args.length < 1) {
-        message.channel.send(Strings.missingAuth[1]);
-        message.channel.send(Strings.missingAuth[2]);
-        // TODO - Tell user how to get user ID
-        return;
-    }
-
-    const [spotifyUserId] = [...args];
-
-    if (!spotifyUserId) {
-        message.channel.send(Strings.invalidAuth);
-        return;
-    }
-
+export const AuthorizeCommand: Command = (message: Discord.Message, ..._args: string[]) => {
     message.channel.send(_.template(Strings.successResponse)({ authorizationUrl: SpotifyHelpers.createAuthorizationUrl() }));
 };
