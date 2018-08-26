@@ -49,7 +49,11 @@ export namespace Constants {
                     2: Strings.Common.helpInstructions
                 },
                 alreadySubscribed: "You are already subscribed to this channel's playlist.",
-                successResponse: "You have subscribed to this channel's Spotify playlist. You will receive a new playlist each week with music submitted to this channel."
+                successResponse: "You have subscribed to this channel's Spotify playlist. You will receive a new playlist periodically with music submitted to this channel."
+            },
+            Unsubscribe: {
+                notSubscribed: "You are not currently subscribed to this channel's playlist.",
+                successResponse: "You have unsubscribed from this channel's Spotify playlist. You will no longer receive playlist updates for this channel."
             }
         };
 
