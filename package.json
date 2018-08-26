@@ -1,9 +1,19 @@
 {
-  "name": "discord-weekly-playlist-bot",
+  "name": "discord-channel-playlist-bot",
+  "description": "A bot that allows users to subscribe to Spotify playlists comprised of music posted to a specific Discord channel.",
   "version": "1.0.0",
   "main": "index.js",
   "author": "Mychal Thompson",
   "license": "MIT",
+  "keywords": [
+    "discord",
+    "discord-bot",
+    "typescript",
+    "spotify",
+    "spotify-playlist",
+    "music",
+    "bot"
+  ],
   "devDependencies": {
     "@types/es6-promise": "^3.3.0",
     "@types/lodash": "^4.14.116",
