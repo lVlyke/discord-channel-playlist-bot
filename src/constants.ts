@@ -29,7 +29,8 @@ export namespace Constants {
                 generalHelp: {
                     1: "This bot allows you to subscribe to music posted to any Discord channel from Spotify. A playlist will be periodically created on your Spotify account with all of the tracks posted to this channel in that time.",
                     2: `To get started, you will need to authorize me to manage the playlist via Spotify. To do this, ${Strings.Common.authInstructions}.`
-                }
+                },
+                availableCommands: "Available commands:"
             },
             RegisterToken: {
                 missingToken:  {
