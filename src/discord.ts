@@ -5,7 +5,7 @@ import { Playlist } from "./models/playlist";
 import { ChannelPlaylistCollection } from "./models/channel-playlist-collection";
 import { SpotifyHelpers } from "./spotify";
 import { Config } from "./models/config";
-import { DataStore } from "./constants";
+import { DataStore, Strings } from "./constants";
 
 const config: Config = require("../config.json");
 
@@ -41,7 +41,7 @@ export namespace DiscordHelpers {
             store.set<ChannelPlaylistCollection>(DataStore.Keys.channelPlaylistCollection, channelPlaylistCollection);
     
             if (config.messageOnPlaylistChange) {
-                message.channel.send("Your track(s) have been added to the playlist.");
+                message.channel.send(Strings.Notifications.messageOnPlaylistChange);
             }
         }
     }

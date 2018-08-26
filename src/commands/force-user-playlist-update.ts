@@ -4,7 +4,9 @@ import { Playlist } from "../models/playlist";
 import { ChannelPlaylistCollection } from "../models/channel-playlist-collection";
 import { store } from "../data-store";
 import { SpotifyHelpers } from "../spotify";
-import { DataStore } from "../constants";
+import { DataStore, Constants } from "../constants";
+
+export const Strings = Constants.Strings.Commands.Authorize;
 
 export const ForceUserPlaylistUpdateCommand: Command = async (message: Discord.Message, ..._args: string[]) => {
     const channelPlaylistCollection = store.get<ChannelPlaylistCollection>(DataStore.Keys.channelPlaylistCollection) || {};
@@ -13,7 +15,7 @@ export const ForceUserPlaylistUpdateCommand: Command = async (message: Discord.M
     if (channelPlaylist) {
         await SpotifyHelpers.updateChannelPlaylist(channelPlaylist);
 
-        message.channel.send("The latest weekly channel playlist has been published on Spotify!");
+        message.channel.send(Strings.successResponse);
     }
     return Promise.resolve();
 };

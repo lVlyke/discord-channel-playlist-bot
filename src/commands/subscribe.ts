@@ -4,14 +4,16 @@ import { Command } from "../command";
 import { store } from "../data-store";
 import { Subscription } from "../models/subscription";
 import { SpotifyUser } from "../models/spotify-user";
-import { DataStore } from "../constants";
+import { DataStore, Constants } from "../constants";
+
+export const Strings = Constants.Strings.Commands.Subscribe;
 
 export const SubscribeCommand: Command = (message: Discord.Message, ..._args: string[]) => {
     const spotifyUserId = (store.get<SpotifyUser.LookupMap>(DataStore.Keys.spotifyUserLookupMap) || {})[message.author.id];
 
     if (!spotifyUserId) {
-        message.channel.send("You need to authorize me to manage your channel playlists before you can subscribe.");
-        message.channel.send("To authorize, please @Mention me and say 'authorize <Spotify User ID>' with your Spotify ID.");
+        message.channel.send(Strings.missingUserId[1]);
+        message.channel.send(Strings.missingUserId[2]);
         return;
     }
 
@@ -24,7 +26,7 @@ export const SubscribeCommand: Command = (message: Discord.Message, ..._args: st
         const idList: SpotifyUser.Id[] = collection[channelId] || [];
 
         if (_.includes(idList, spotifyUserId)) {
-            message.channel.send("You are already subscribed to this channel's playlist.");
+            message.channel.send(Strings.alreadySubscribed);
 
             didSubscribe = false;
             return collection;
@@ -38,6 +40,6 @@ export const SubscribeCommand: Command = (message: Discord.Message, ..._args: st
     });
 
     if (didSubscribe) {
-        message.channel.send("You have subscribed to this channel's Spotify playlist. You will receive a new playlist each week with music submitted to this channel.");
+        message.channel.send(Strings.successResponse);
     }
 };

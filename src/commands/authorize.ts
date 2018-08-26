@@ -1,11 +1,15 @@
 import * as Discord from "discord.js";
+import * as _ from "lodash";
 import { Command } from "../command";
 import { SpotifyHelpers } from "../spotify";
+import { Constants } from "../constants";
+
+export const Strings = Constants.Strings.Commands.Authorize;
 
 export const AuthorizeCommand: Command = (message: Discord.Message, ...args: string[]) => {
     if (args.length < 1) {
-        message.channel.send("In order to authorize, you need to provide your Spotify User ID.");
-        message.channel.send("For help, **@Mention** me and say `help`.");
+        message.channel.send(Strings.missingAuth[1]);
+        message.channel.send(Strings.missingAuth[2]);
         // TODO - Tell user how to get user ID
         return;
     }
@@ -13,9 +17,9 @@ export const AuthorizeCommand: Command = (message: Discord.Message, ...args: str
     const [spotifyUserId] = [...args];
 
     if (!spotifyUserId) {
-        message.channel.send("Invalid Spotify User ID.");
+        message.channel.send(Strings.invalidAuth);
         return;
     }
 
-    message.channel.send(`To authorize me to manage your channel playlists, follow this link: ${SpotifyHelpers.createAuthorizationUrl()}`);
+    message.channel.send(_.template(Strings.successResponse)({ authorizationUrl: SpotifyHelpers.createAuthorizationUrl() }));
 };

@@ -12,7 +12,7 @@ import { ChannelPlaylistCollection } from "./models/channel-playlist-collection"
 import { Config } from "./models/config";
 import { SpotifyHelpers } from "./spotify";
 import { Playlist } from "./models/playlist";
-import { DataStore } from "./constants";
+import { DataStore, Strings } from "./constants";
 
 const auth: Auth = require("../auth.json");
 const config: Config = require("../config.json");
@@ -46,12 +46,8 @@ export function checkMessage(message: Discord.Message) {
             commandFn(message, ...args);
         }
         else {
-            message.channel.send(`${[
-                "I don't know what that is, I've never seen that.",
-                "Beep boop, I'm just a bot.",
-                "What?",
-                "Cool."
-            ][Math.floor(Math.random() * 4)]} You can say \`help\` to see a list of commands.`);
+            const errorPrefixes = Strings.CommandError.Prefixes;
+            message.channel.send(`${errorPrefixes[Math.floor(Math.random() * errorPrefixes.length)]} ${Strings.CommandError.Response}`);
         }
     }
     else {
@@ -75,7 +71,7 @@ async function checkChannelListStatus(): Promise<void> {
 
             if (!_.isEmpty(playlist.songUris)) {
                 if (channel && config.messageOnPlaylistCommit) {
-                    channel.send("Spotify playlists for this channel are being updated. Get ready!");
+                    channel.send(Strings.Notifications.messageOnPlaylistCommit);
                 }
 
                 try {
