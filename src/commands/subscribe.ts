@@ -12,8 +12,8 @@ export const SubscribeCommand: Command = (message: Discord.Message, ..._args: st
     const spotifyUserId = (store.get<SpotifyUser.LookupMap>(DataStore.Keys.spotifyUserLookupMap) || {})[message.author.id];
 
     if (!spotifyUserId) {
-        message.channel.send(Strings.missingUserId[1]);
-        message.channel.send(Strings.missingUserId[2]);
+        message.channel.send(Strings.unregisteredUserId[1]);
+        message.channel.send(Strings.unregisteredUserId[2]);
         return;
     }
 

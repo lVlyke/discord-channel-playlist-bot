@@ -43,7 +43,7 @@ export namespace Constants {
                 successResponse: "You're all set! You can now **@Mention** me in any channel and say `subscribe` to have me manage a weekly playlist for that channel."
             },
             Subscribe: {
-                missingUserId: {
+                unregisteredUserId: {
                     1: `You need to authorize me to manage your channel playlists via Spotify before you can subscribe. To authorize, ${Strings.Common.authInstructions}.`,
                     2: Strings.Common.helpInstructions
                 },
