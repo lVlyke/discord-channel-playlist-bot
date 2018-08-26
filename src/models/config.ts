@@ -3,4 +3,5 @@ export interface Config {
     messageOnPlaylistCommit: boolean;
     playlistUpdateFrequency: number; //seconds
     playlistName: string;
+    dataStoreLocation: string;
 }

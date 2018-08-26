@@ -1,6 +1,8 @@
 import * as fs from "fs";
+import * as path from "path";
+import { Config } from "./models/config";
 
-export const DATA_STORE_PATH: string = "data.json";
+const config: Config = require("../config.json");
 
 export interface DataStore {
     set<T>(key: string, value: T): void;
@@ -63,8 +65,19 @@ export class LocalDataStore implements DataStore {
     }
 
     private saveStore(store: any): void {
+        const mkdirp = (fpath: string): void => {
+            const dirname = path.dirname(fpath);
+
+            if (fs.existsSync(dirname)) {
+                return;
+            } else {
+                mkdirp(dirname), fs.mkdirSync(dirname);
+            }
+        };
+
+        mkdirp(this.path);
         fs.writeFileSync(this.path, JSON.stringify(store), { encoding: "utf-8" });
     }
 }
 
-export const store: DataStore = new LocalDataStore(DATA_STORE_PATH);
+export const store: DataStore = new LocalDataStore(config.dataStoreLocation);
