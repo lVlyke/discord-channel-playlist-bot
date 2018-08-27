@@ -95,7 +95,7 @@ The bot accepts several different commands. To trigger a command from chat, repl
 
 - **`register-token` _`[auth-token]`_** - Tells the bot to register the user with the given `auth-token`. For more information about authorization, see the [authorization](#authorization) section.
 
-&ensp;&ensp;&ensp;&ensp;&ensp; **IMPORTANT NOTE**: While the auth token won't grant direct or permanent access to a user's Spotify account, it is reccommended to send the auth token privately to the bot via a direct message.
+> **IMPORTANT NOTE**: While the auth token won't grant direct or permanent access to a user's Spotify account, it is reccommended to send the auth token privately to the bot via a direct message.
 
 - **`subscribe`** - Subscribes the user to the current channel's playlist.
 
