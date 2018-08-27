@@ -19,6 +19,8 @@ const auth: Auth = require("../auth.json");
 const config: Config = require("../config.json");
 
 export function main() {
+    discordClient.on("error", logger.error);
+
     // login
     discordClient.login(auth.discord.token);
 
@@ -75,7 +77,7 @@ async function checkChannelListStatus(): Promise<void> {
         const playlist: Playlist = channelPlaylistCollection[key];
     
         // Check if enough time has elapsed to commit this channel's playlist to each subscribed user's Spotify account
-        if (playlist.lastCommitDate && moment().isAfter(moment(playlist.lastCommitDate).add(config.playlistUpdateFrequency, "seconds"))) {
+        if (playlist && playlist.lastCommitDate && moment().isAfter(moment(playlist.lastCommitDate).add(config.playlistUpdateFrequency, "seconds"))) {
             const channel = discordClient.channels.find(c => c.id === playlist.channelId) as Discord.TextChannel;
 
             if (!_.isEmpty(playlist.songUris)) {
