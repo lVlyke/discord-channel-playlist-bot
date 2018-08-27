@@ -49,15 +49,15 @@ Here's an example configuration. Please note that these values must be replaced 
 
 This file contains configurable values that change the behavior of the bot.
 
-`messageOnPlaylistChange` - Whether or not the bot should send a message to the channel when a new song is posted on the channel. Defaults to `false`.
+**`messageOnPlaylistChange`** - Whether or not the bot should send a message to the channel when a new song is posted on the channel. Defaults to `false`.
 
-`messageOnPlaylistCommit` - Whether or not the bot should send a message to the channel when Spotify user playlists are being updated for the channel. Defaults to `false`.
+**`messageOnPlaylistCommit`** - Whether or not the bot should send a message to the channel when Spotify user playlists are being updated for the channel. Defaults to `false`.
 
-`playlistUpdateFrequency` - How often Spotify user playlists should be updated for any subscribed channel, in seconds. Defaults to `604800` (1 week).
+**`playlistUpdateFrequency`** - How often Spotify user playlists should be updated for any subscribed channel, in seconds. Defaults to `604800` (1 week).
 
-`playlistName` - The name of the playlists created by this bot. Defaults to `"Weekly Playlist"`. (**Note**: The server name and channel name being subscribed to will be automatically prepended to this value).
+**`playlistName`** - The name of the playlists created by this bot. Defaults to `"Weekly Playlist"`. (**Note**: The server name and channel name being subscribed to will be automatically prepended to this value).
 
-`dataStoreLocation` - Where to store user authorization and playlist/subscription data. Defaults to `"data/store.json"`.
+**`dataStoreLocation`** - Where to store user authorization and playlist/subscription data. Defaults to `"data/store.json"`.
 
 ### Authorization
 
@@ -86,3 +86,19 @@ Then start the bot:
 ```bash
 npm run start
 ```
+
+## Using the bot
+
+The bot accepts several different commands. To trigger a command from chat, reply to the bot with a mention (i.e. `@BotName`) and then the name of the command. The accepted commands are as follows:
+
+- **`authorize`** - Triggers the bot to reply to the user with an authorization URL to grant the bot access to Spotify. For more information about authorization, see the [authorization](#authorization) section.
+
+- **`register-token` _`[auth-token]`_** - Tells the bot to register the user with the given `auth-token`. For more information about authorization, see the [authorization](#authorization) section.
+
+&ensp;&ensp;&ensp;&ensp;&ensp; **IMPORTANT NOTE**: While the auth token won't grant direct or permanent access to a user's Spotify account, it is reccommended to send the auth token privately to the bot via a direct message.
+
+- **`subscribe`** - Subscribes the user to the current channel's playlist.
+
+- **`unsubscribe`** - Unsubscribes the user from the current channel's playlist.
+
+- **`help`** - Provides basic info about the bot and a list of available commands.
