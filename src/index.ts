@@ -100,10 +100,10 @@ async function checkChannelListStatus(): Promise<void> {
                 }
             }
 
-            if (config.keepOldPlaylistSongs) {
-                // Update the last commit date
-                channelPlaylistCollection[key].lastCommitDate = moment().toISOString();
-            } else {
+            // Update the last commit date
+            channelPlaylistCollection[key].lastCommitDate = moment().toISOString();
+
+            if (!config.keepOldPlaylistSongs) {
                 // Re-initialize the list and remove all previous songs
                 channelPlaylistCollection[key] = Playlist.create(channel);
             }
