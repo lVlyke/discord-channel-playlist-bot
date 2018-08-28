@@ -7,7 +7,7 @@ export namespace Constants {
             userAuthCollection: "userAuthCollection",
             spotifyUserLookupMap: "spotifyUserLookupMap",
             subscriptions: "subscriptions",
-            userChannelPlaylists: "userChannelPlaylists"
+            userData: "userData"
         };
     }
 

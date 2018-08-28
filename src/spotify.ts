@@ -1,7 +1,7 @@
 import * as SpotifyWebApi from "spotify-web-api-node";
 import * as moment from "moment";
 import * as _ from "lodash";
-import { UserChannelPlaylist } from "./models/user-channel-playlist";
+import { UserData } from "./models/user-data";
 import { store } from "./data-store";
 import { SpotifyUser } from "./models/spotify-user";
 import { Playlist } from "./models/playlist";
@@ -100,12 +100,30 @@ export namespace SpotifyHelpers {
     }
 
     export async function updateChannelPlaylistForUser(userId: SpotifyUser.Id, playlist: Playlist): Promise<void> {
-        const userChannelPlaylists = store.get<UserChannelPlaylist.List>(DataStore.Keys.userChannelPlaylists) || {};
+        const userDataStore = store.get<UserData.Collection>(DataStore.Keys.userData) || {};
+        
+        function userPlaylists(): UserData.PlaylistCollection {
+            let userData = userDataStore[userId];
 
-        async function makeList(): Promise<string> {
-            const playlistId = userChannelPlaylists[userId] = await createUserPlaylist(userId, `${playlist.channelName} - ${config.playlistName}`);
-            store.set<UserChannelPlaylist.List>(DataStore.Keys.userChannelPlaylists, userChannelPlaylists);
-            return Promise.resolve(playlistId);
+            if (!userData) {
+                userData = userDataStore[userId] = {};
+            }
+
+            if (!userData.playlists) {
+                userData.playlists = {};
+            }
+
+            return userData.playlists;
+        }
+
+        function userPlaylistId(): string {
+            return userPlaylists()[playlist.channelId];
+        }
+
+        async function makeList(): Promise<void> {
+            userPlaylists()[playlist.channelId] = await createUserPlaylist(userId, `${playlist.channelName} - ${config.playlistName}`);
+            store.set<UserData.Collection>(DataStore.Keys.userData, userDataStore);
+            return Promise.resolve();
         }
 
         // Authenticate as the user
@@ -118,7 +136,7 @@ export namespace SpotifyHelpers {
 
         // Check if the last used playlist exists
         try {
-            await spotifyClient.getPlaylist(userId, userChannelPlaylists[userId]);
+            await spotifyClient.getPlaylist(userId, userPlaylistId());
         } catch (e) {
             console.error(e);
 
@@ -129,7 +147,7 @@ export namespace SpotifyHelpers {
         // Get the tracks currently on the user's playlist
         let playlistTracksResponse;
         try {
-            playlistTracksResponse = await spotifyClient.getPlaylistTracks(userId, userChannelPlaylists[userId]);
+            playlistTracksResponse = await spotifyClient.getPlaylistTracks(userId, userPlaylistId());
         } catch (e) {
             console.error(e);
             return Promise.reject("updateChannelPlaylist - Failed to get playlist tracks.");
@@ -139,7 +157,7 @@ export namespace SpotifyHelpers {
         const tracksToRemove = playlistTracksResponse.body.items.map(item => ({ uri: item.track.uri }));
         if (!_.isEmpty(tracksToRemove)) {
             try {
-                await spotifyClient.removeTracksFromPlaylist(userId, userChannelPlaylists[userId], tracksToRemove);
+                await spotifyClient.removeTracksFromPlaylist(userId, userPlaylistId(), tracksToRemove);
             } catch (e) {
                 console.error(e);
                 return Promise.reject("updateChannelPlaylist - Failed to remove playlist tracks.");
@@ -148,7 +166,7 @@ export namespace SpotifyHelpers {
 
         // Add the channel's playlist to the user's playlist
         try {
-            await spotifyClient.addTracksToPlaylist(userId, userChannelPlaylists[userId], playlist.songUris);
+            await spotifyClient.addTracksToPlaylist(userId, userPlaylistId(), playlist.songUris);
         } catch (e) {
             console.error(e);
             return Promise.reject("updateChannelPlaylist - Failed to add playlist tracks from channel.");
