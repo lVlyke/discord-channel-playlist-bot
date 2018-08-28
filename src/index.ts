@@ -77,7 +77,11 @@ async function checkChannelListStatus(): Promise<void> {
         const playlist: Playlist = channelPlaylistCollection[key];
     
         // Check if enough time has elapsed to commit this channel's playlist to each subscribed user's Spotify account
-        if (playlist && playlist.lastCommitDate && moment().isAfter(moment(playlist.lastCommitDate).add(config.playlistUpdateFrequency, "seconds"))) {
+        if (playlist && 
+            playlist.lastUpdateDate && 
+            moment(playlist.lastUpdateDate).isAfter(playlist.lastCommitDate) &&
+            moment().isAfter(moment(playlist.lastCommitDate).add(config.playlistUpdateFrequency, "seconds"))
+        ) {
             const channel = discordClient.channels.find(c => c.id === playlist.channelId) as Discord.TextChannel;
 
             if (!_.isEmpty(playlist.songUris)) {
@@ -96,8 +100,14 @@ async function checkChannelListStatus(): Promise<void> {
                 }
             }
 
-            // Re-initialize the channel's playlist for the new period
-            channelPlaylistCollection[key] = Playlist.create(channel);
+            if (config.keepOldPlaylistSongs) {
+                // Update the last commit date
+                channelPlaylistCollection[key].lastCommitDate = moment().toISOString();
+            } else {
+                // Re-initialize the list and remove all previous songs
+                channelPlaylistCollection[key] = Playlist.create(channel);
+            }
+            
             store.set<ChannelPlaylistCollection>(DataStore.Keys.channelPlaylistCollection, channelPlaylistCollection);
         }
     }

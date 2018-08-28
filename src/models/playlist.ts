@@ -5,6 +5,7 @@ export interface Playlist {
     channelName: string;
     songUris: string[];
     lastCommitDate: string;
+    lastUpdateDate?: string;
 }
 
 export namespace Playlist {

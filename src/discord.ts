@@ -35,6 +35,7 @@ export namespace DiscordHelpers {
     
             // Add all Spotify URIs from the message to the playlist
             channelPlaylist.songUris.push(...spotifyUris.map(uri => SpotifyHelpers.encodeUri(uri)));
+            channelPlaylist.lastUpdateDate = new Date().toISOString();
     
             // Update the collection
             channelPlaylistCollection[message.channel.id] = channelPlaylist;

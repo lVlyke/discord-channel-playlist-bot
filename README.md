@@ -49,9 +49,17 @@ Here's an example configuration. Please note that these values must be replaced 
 
 This file contains configurable values that change the behavior of the bot.
 
+##### Playlist behavior
+
+By default, the bot is configured to update user's channel playlists every week. Songs from the previous week will be deleted, much like the Discover Weekly playlist from Spotify. You can change this behavior by setting the `keepOldPlaylistSongs` property to `true`. By also changing `playlistUpdateFrequency` to `1`, you can make the bot continuously pump songs to the playlist as soon as they are posted in Discord, making the playlist function as an archive of all songs posted to that channel.
+
+##### Properties
+
 **`messageOnPlaylistChange`** - Whether or not the bot should send a message to the channel when a new song is posted on the channel. Defaults to `false`.
 
 **`messageOnPlaylistCommit`** - Whether or not the bot should send a message to the channel when Spotify user playlists are being updated for the channel. Defaults to `false`.
+
+**`keepOldPlaylistSongs`** - Whether or not the bot should keep songs that were previously posted to the playlist. Defaults to `false`.
 
 **`playlistUpdateFrequency`** - How often Spotify user playlists should be updated for any subscribed channel, in seconds. Defaults to `604800` (1 week).
 
