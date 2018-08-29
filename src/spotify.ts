@@ -60,7 +60,11 @@ export namespace SpotifyHelpers {
 
         if (moment().isAfter(record.expirationDate)) {
             try {
+                // Refresh the user's access token
                 await refreshAccessToken(record);
+
+                // Update the store
+                store.set<UserAuth.Collection>(DataStore.Keys.userAuthCollection, authCollection);
             } catch (_e) {
                 return Promise.reject(AuthenticationError.INVALID_TOKEN);
             }
