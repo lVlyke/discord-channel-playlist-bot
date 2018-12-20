@@ -45,7 +45,6 @@ export namespace SpotifyHelpers {
         }
         
         auth.accessToken = data.body.access_token;
-        auth.refreshToken = data.body.refresh_token;
         auth.expirationDate = moment().add(data.body.expires_in, "seconds").toISOString();
         return Promise.resolve();
     }
@@ -95,8 +94,8 @@ export namespace SpotifyHelpers {
             try {
                 await SpotifyHelpers.updateChannelPlaylistForUser(userId, playlist);
             } catch (e) {
-                console.error(e);
-                console.error("Failed to update one or more user playlists.");
+                console.warn(e);
+                console.warn("Failed to update one or more user playlists.");
             }
         }
 
@@ -140,9 +139,9 @@ export namespace SpotifyHelpers {
 
         // Check if the last used playlist exists
         try {
-            await spotifyClient.getPlaylist(userId, userPlaylistId());
+            await spotifyClient.getPlaylist(userPlaylistId());
         } catch (e) {
-            console.error(e);
+            console.warn(e);
 
             // Playlist doesn't exist, so make a new one
             await makeList();
@@ -151,26 +150,30 @@ export namespace SpotifyHelpers {
         // Get the tracks currently on the user's playlist
         let playlistTracksResponse;
         try {
-            playlistTracksResponse = await spotifyClient.getPlaylistTracks(userId, userPlaylistId());
+            playlistTracksResponse = await spotifyClient.getPlaylistTracks(userPlaylistId());
         } catch (e) {
-            console.error(e);
-            return Promise.reject("updateChannelPlaylist - Failed to get playlist tracks.");
+            console.warn(e);
+
+            // Playlist messed up, so make a new one
+            await makeList();
         }
 
         // Remove all tracks from the user's playlist
         const tracksToRemove = playlistTracksResponse.body.items.map(item => ({ uri: item.track.uri }));
         if (!_.isEmpty(tracksToRemove)) {
             try {
-                await spotifyClient.removeTracksFromPlaylist(userId, userPlaylistId(), tracksToRemove);
+                await spotifyClient.removeTracksFromPlaylist(userPlaylistId(), tracksToRemove);
             } catch (e) {
-                console.error(e);
-                return Promise.reject("updateChannelPlaylist - Failed to remove playlist tracks.");
+                console.warn(e);
+                
+                // Playlist messed up, so make a new one
+                await makeList();
             }
         }
 
         // Add the channel's playlist to the user's playlist
         try {
-            await spotifyClient.addTracksToPlaylist(userId, userPlaylistId(), playlist.songUris);
+            await spotifyClient.addTracksToPlaylist(userPlaylistId(), playlist.songUris);
         } catch (e) {
             console.error(e);
             return Promise.reject("updateChannelPlaylist - Failed to add playlist tracks from channel.");
