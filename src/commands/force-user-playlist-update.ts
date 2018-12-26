@@ -8,7 +8,7 @@ import { DataStore, Constants } from "../constants";
 
 export const Strings = Constants.Strings.Commands.Authorize;
 
-export const ForceUserPlaylistUpdateCommand: Command = async (message: Discord.Message, ..._args: string[]) => {
+export const ForceUserPlaylistUpdateCommand: Command = async (message: Discord.Message) => {
     const channelPlaylistCollection = store.get<ChannelPlaylistCollection>(DataStore.Keys.channelPlaylistCollection) || {};
     const channelPlaylist: Playlist = channelPlaylistCollection[message.channel.id];
 

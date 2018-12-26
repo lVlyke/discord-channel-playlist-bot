@@ -60,7 +60,7 @@ export function checkMessage(message: Discord.Message) {
             // Only monitor channels that are subscribed to
             if (DataUtils.isChannelSubscribedTo(message.channel.id)) {
                 // Check for new tracks from users in the channel
-                DiscordHelpers.checkForTracks(message);
+                DiscordHelpers.extractAndProcessTracks(message);
             }
         } else if (message.channel instanceof Discord.DMChannel) {
             // If this is a DM, assume someone is registering a token

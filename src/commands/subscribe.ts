@@ -8,7 +8,7 @@ import { DataStore, Constants } from "../constants";
 
 export const Strings = Constants.Strings.Commands.Subscribe;
 
-export const SubscribeCommand: Command = (message: Discord.Message, ..._args: string[]) => {
+export const SubscribeCommand: Command = (message: Discord.Message) => {
     const spotifyUserId = (store.get<SpotifyUser.LookupMap>(DataStore.Keys.spotifyUserLookupMap) || {})[message.author.id];
 
     if (!spotifyUserId) {

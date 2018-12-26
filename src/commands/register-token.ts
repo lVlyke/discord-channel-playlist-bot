@@ -9,16 +9,9 @@ import { DataStore, Constants } from "../constants";
 
 export const Strings = Constants.Strings.Commands.RegisterToken;
 
-export const RegisterTokenCommand: Command = async (message: Discord.Message, ...args: string[]) => {
-    if (args.length < 1) {
-        message.channel.send(`${Strings.missingToken[1]}\r\n${Strings.missingToken[2]}`, { reply: message.author });
-        return Promise.reject();
-    }
-
-    const [authCode] = [...args];
-
+export const RegisterTokenCommand: Command = async (message: Discord.Message, authCode: string) => {
     if (!authCode) {
-        message.channel.send(`${Strings.invalidToken[1]}\r\n${Strings.invalidToken[2]}`, { reply: message.author });
+        message.channel.send(`${Strings.missingToken[1]}\r\n${Strings.missingToken[2]}`, { reply: message.author });
         return Promise.reject();
     }
 
