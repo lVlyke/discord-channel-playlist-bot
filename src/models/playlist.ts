@@ -2,7 +2,7 @@ import * as Discord from "discord.js";
 import moment = require("moment");
 import { Config } from "./config";
 
-const config: Config = require("../config.json");
+const config: Config = require("../../config.json");
 
 export interface Playlist {
     channelId: string;
