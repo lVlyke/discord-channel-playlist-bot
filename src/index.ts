@@ -18,6 +18,9 @@ import { DataUtils } from "./utils/data-utils";
 const auth: Auth = require("../auth.json");
 const config: Config = require("../config.json");
 
+// How many times the server should check for playlist updates, in seconds
+const TICKS_PER_SECOND = 1;
+
 export function main() {
     discordClient.on("error", logger.error);
 
@@ -70,50 +73,53 @@ export function checkMessage(message: Discord.Message) {
 }
 
 async function checkChannelListStatus(): Promise<void> {
+    // Check for updates on the given tick interval
+    setTimeout(checkChannelListStatus, 1000 / TICKS_PER_SECOND);
+
     // Get all managed channel playlists
-    const channelPlaylistCollection = store.get<ChannelPlaylistCollection>(DataStore.Keys.channelPlaylistCollection) || {};
+    const channelPlaylistCollection = _.clone(store.get<ChannelPlaylistCollection>(DataStore.Keys.channelPlaylistCollection) || {});
+    const commitPlaylistChanges = () => store.set<ChannelPlaylistCollection>(DataStore.Keys.channelPlaylistCollection, channelPlaylistCollection);
 
     for (const key in channelPlaylistCollection) {
         const playlist: Playlist = channelPlaylistCollection[key];
     
         // Check if enough time has elapsed to commit this channel's playlist to each subscribed user's Spotify account
-        if (playlist && 
-            playlist.lastUpdateDate && 
-            moment(playlist.lastUpdateDate).isAfter(playlist.lastCommitDate) &&
-            moment().isAfter(moment(playlist.lastCommitDate).add(config.playlistUpdateFrequency, "seconds"))
-        ) {
+        if (playlist && Playlist.requiresUpdate(playlist)) {
             const channel = discordClient.channels.find(c => c.id === playlist.channelId) as Discord.TextChannel;
 
             if (!_.isEmpty(playlist.songUris)) {
+
+                // Update the last commit date
+                channelPlaylistCollection[key].lastCommitDate = moment().toISOString();
+                commitPlaylistChanges();
 
                 // Send notification (if enabled)
                 if (channel && config.messageOnPlaylistCommit) {
                     channel.send(Strings.Notifications.messageOnPlaylistCommit);
                 }
 
+                logger.log(`Updating playlist for "${playlist.channelName}"`);
+
                 // Update the users playlists
                 try {
                     await SpotifyHelpers.updateChannelPlaylist(playlist);
                 } catch (e) {
+                    logger.error(`Error updating playlist for channel "${playlist.channelName}": `);
                     logger.error(e);
-                    continue;
                 }
             }
-
-            // Update the last commit date
-            channelPlaylistCollection[key].lastCommitDate = moment().toISOString();
 
             if (!config.keepOldPlaylistSongs) {
                 // Re-initialize the list and remove all previous songs
                 channelPlaylistCollection[key] = Playlist.create(channel);
+                commitPlaylistChanges();
             }
-            
-            store.set<ChannelPlaylistCollection>(DataStore.Keys.channelPlaylistCollection, channelPlaylistCollection);
+
+            // Update one playlist per tick
+            break;
         }
     }
 
-    // Check for updates every 1000ms
-    setTimeout(checkChannelListStatus, 1000);
     return Promise.resolve();
 }
 
