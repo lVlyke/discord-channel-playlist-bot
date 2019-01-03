@@ -10,6 +10,7 @@ import { Auth } from "./models/auth";
 import { Subscription } from "./models/subscription";
 import { Config } from "./models/config";
 import { DataStore } from "./constants";
+import { logger } from "./logger";
 
 const auth: Auth = require("../auth.json");
 const config: Config = require("../config.json");
@@ -40,7 +41,7 @@ export namespace SpotifyHelpers {
         try {
             data = await spotifyClient.refreshAccessToken();
         } catch (e) {
-            console.error(e);
+            logger.error(`Error refreshing access token: ${JSON.stringify(e)}`);
             return Promise.reject(e);
         }
         
@@ -79,7 +80,7 @@ export namespace SpotifyHelpers {
         try {
             response = await spotifyClient.createPlaylist(userId, name);
         } catch (e) {
-            console.error(e);
+            logger.error(`Error creating playlist for Spotify user ${userId}: ${JSON.stringify(e)}`);
             return Promise.reject(e);
         }
 
@@ -94,8 +95,7 @@ export namespace SpotifyHelpers {
             try {
                 await SpotifyHelpers.updateChannelPlaylistForUser(userId, playlist);
             } catch (e) {
-                console.warn(e);
-                console.warn("Failed to update one or more user playlists.");
+                logger.warn(`Trouble updating one or more user playlists: ${JSON.stringify(e)}`);
             }
         }
 
@@ -133,15 +133,15 @@ export namespace SpotifyHelpers {
         try {
             await authenticateAsUser(userId);
         } catch (e) {
-            console.error(e);
-            return Promise.reject("updateChannelPlaylist - Failed to authenticate user.");
+            logger.error(`Error authenticating as Spotify user ${userId}: ${JSON.stringify(e)}`);
+            return Promise.reject(`updateChannelPlaylist - Failed to authenticate Spotify user ${userId}.`);
         }
 
         // Check if the last used playlist exists
         try {
             await spotifyClient.getPlaylist(userPlaylistId());
         } catch (e) {
-            console.warn(e);
+            logger.warn(`Trouble getting existing playlist for Spotify user ${userId}: ${JSON.stringify(e)}`);
 
             // Playlist doesn't exist, so make a new one
             await makeList();
@@ -152,7 +152,7 @@ export namespace SpotifyHelpers {
         try {
             playlistTracksResponse = await spotifyClient.getPlaylistTracks(userPlaylistId());
         } catch (e) {
-            console.warn(e);
+            logger.warn(`Trouble getting playlist tracks for Spotify user ${userId}: ${JSON.stringify(e)}`);
 
             // Playlist messed up, so make a new one
             await makeList();
@@ -164,7 +164,7 @@ export namespace SpotifyHelpers {
             try {
                 await spotifyClient.removeTracksFromPlaylist(userPlaylistId(), tracksToRemove);
             } catch (e) {
-                console.warn(e);
+                logger.warn(`Trouble removing existing playlist tracks for Spotify user ${userId}: ${JSON.stringify(e)}`);
                 
                 // Playlist messed up, so make a new one
                 await makeList();
@@ -175,8 +175,8 @@ export namespace SpotifyHelpers {
         try {
             await spotifyClient.addTracksToPlaylist(userPlaylistId(), playlist.songUris);
         } catch (e) {
-            console.error(e);
-            return Promise.reject("updateChannelPlaylist - Failed to add playlist tracks from channel.");
+            logger.error(`Error adding tracks to playlist for Spotify user ${userId}: ${JSON.stringify(e)}`);
+            return Promise.reject(`updateChannelPlaylist - Failed to add playlist tracks from channel for Spotify user ${userId}.`);
         }
 
         return Promise.resolve();
