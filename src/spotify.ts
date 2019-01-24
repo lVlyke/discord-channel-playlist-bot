@@ -176,6 +176,10 @@ export namespace SpotifyHelpers {
             await spotifyClient.addTracksToPlaylist(userPlaylistId(), playlist.songUris);
         } catch (e) {
             logger.error(`Error adding tracks to playlist for Spotify user ${userId}: ${JSON.stringify(e)}`);
+
+            // Playlist messed up, so make a new one
+            await makeList();
+
             return Promise.reject(`updateChannelPlaylist - Failed to add playlist tracks from channel for Spotify user ${userId}.`);
         }
 
